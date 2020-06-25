@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>protobuf-openapi-example</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <packaging>war</packaging>
+
+    <properties>
+        <protobuf.version>3.6.1</protobuf.version>
+        <payara.version>5.194</payara.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.swagger.core.v3</groupId>
+            <artifactId>swagger-annotations</artifactId>
+            <version>2.0.5</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.protobuf</groupId>
+            <artifactId>protobuf-java-util</artifactId>
+            <version>${protobuf.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jakarta.platform</groupId>
+            <artifactId>jakarta.jakartaee-api</artifactId>
+            <version>8.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>swagger-ui</artifactId>
+            <version>3.18.2</version>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <id>local-maven-repo</id>
+            <url>file:///${project.basedir}/ext/</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>kr.motd.maven</groupId>
+                    <artifactId>os-maven-plugin</artifactId>
+                    <version>1.5.0.Final</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
+        <extensions>
+            <extension>
+                <groupId>kr.motd.maven</groupId>
+                <artifactId>os-maven-plugin</artifactId>
+            </extension>
+        </extensions>
+
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.xolstice.maven.plugins</groupId>
+                <artifactId>protobuf-maven-plugin</artifactId>
+                <version>0.6.1</version>
+                <configuration>
+                    <protocArtifact>
+                        com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
+                    </protocArtifact>
+                </configuration>
+                <executions>
+                    <execution>
+                        <!-- Generate Java classes from the protobuf description. -->
+                        <id>proto_compile</id>
+                        <goals>
+                            <goal>compile</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <!-- Generate OpenAPI file from ProtoBuf definitions -->
+                        <id>proto_compile_openapi</id>
+                        <goals>
+                            <goal>compile-custom</goal>
+                        </goals>
+                        <phase>generate-resources</phase>
+                        <configuration>
+                            <pluginId>jsonschema</pluginId>
+                            <pluginArtifact>
+                                com.github.lst85:protoc-gen-jsonschema:0.9.3:exe:${os.detected.classifier}
+                            </pluginArtifact>
+                            <pluginParameter>
+                                open_api,open_api_template=${project.basedir}/src/main/resources/openapi/openapi-template.json,out_file=openapi-types.json
+                            </pluginParameter>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Creates the swagger.json file during compilation and puts it into the swagger folder -->
+            <plugin>
+                <groupId>io.swagger.core.v3</groupId>
+                <artifactId>swagger-maven-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>resolve</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <outputPath>${project.build.outputDirectory}/META-INF/</outputPath>
+                    <outputFileName>openapi</outputFileName>
+                    <outputFormat>JSON</outputFormat>
+                    <openapiFilePath>
+                        ${project.build.directory}/generated-sources/protobuf/jsonschema/openapi-types.json
+                    </openapiFilePath>
+                    <resourcePackages>
+                        <package>org.example.resources</package>
+                    </resourcePackages>
+                    <prettyPrint>true</prettyPrint>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>fish.payara.maven.plugins</groupId>
+                <artifactId>payara-micro-maven-plugin</artifactId>
+                <version>1.0.6</version>
+                <configuration>
+                    <payaraVersion>${payara.version}</payaraVersion>
+                    <deployWar>true</deployWar>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

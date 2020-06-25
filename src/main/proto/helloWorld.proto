@@ -1,0 +1,11 @@
+syntax = "proto3";
+package helloworld;
+option java_package = "org.example.services.helloworld";
+
+message HelloWorldRequest {
+   // empty
+}
+
+message HelloWorldResponse {
+    string message = 1;
+}
