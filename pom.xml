@@ -49,6 +49,7 @@
     </dependencies>
 
     <repositories>
+        <!-- Local repository contains protoc-gen-jsonschema binaries. -->
         <repository>
             <id>local-maven-repo</id>
             <url>file:///${project.basedir}/ext/</url>
@@ -121,7 +122,8 @@
                 </executions>
             </plugin>
 
-            <!-- Creates the swagger.json file during compilation and puts it into the swagger folder -->
+            <!-- Takes the OpenAPI file that was generated from the ProtoBuf definitions and enhances it with the
+            service definitions from the Swagger/OpenAPI annotations -->
             <plugin>
                 <groupId>io.swagger.core.v3</groupId>
                 <artifactId>swagger-maven-plugin</artifactId>

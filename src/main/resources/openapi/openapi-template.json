@@ -1,6 +1,6 @@
 {
   "info": {
-    "title": "OpenAPI Example Services",
+    "title": "ProtoBuf/OpenAPI Example Services",
     "version": "1.0"
   },
   "servers": [
