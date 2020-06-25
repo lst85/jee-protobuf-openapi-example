@@ -1,4 +1,4 @@
-Example how to use the protoc-gen-jsonschema to create a Java EE REST service that accepts both ProtoBuf and JSON and has OpenAPI specification. 
+Example how to use the protoc-gen-jsonschema plugin to create a Java EE REST service that accepts both ProtoBuf and JSON and has a OpenAPI specification. 
 
 Maven: How to build and execute:
 ```
